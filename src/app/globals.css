@@ -1,0 +1,246 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-accent: var(--accent);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-ring: var(--ring);
+  --color-input: var(--border);
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+  --font-display: var(--font-inter);
+
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes float {
+    0% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+
+    100% {
+      transform: translateY(0px);
+    }
+  }
+}
+
+:root {
+  --background: #FAFAFA;
+  --foreground: #0F172A;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --border: #E2E8F0;
+  --card: #FFFFFF;
+  --accent: #0052FF;
+  --accent-secondary: #4D7CFF;
+  --accent-foreground: #FFFFFF;
+  --ring: #0052FF;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Optional: Add dark mode variables if needed later, but spec only gave light mode mainly? 
+     "background #FAFAFA" implies light mode default. 
+     I will keep it light for now as per specific hex codes provided. */
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Custom Utilities */
+.bg-accent-gradient,
+.bg-signature-gradient {
+  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+}
+
+.text-accent-gradient,
+.text-signature-gradient {
+  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.border-gradient {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(135deg, var(--accent), var(--accent-secondary)) border-box;
+}
+
+/* Accent Shadows */
+.shadow-accent-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 82, 255, 0.05);
+}
+
+.shadow-accent-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 82, 255, 0.1), 0 2px 4px -1px rgba(0, 82, 255, 0.06);
+}
+
+.shadow-accent-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 82, 255, 0.1), 0 4px 6px -2px rgba(0, 82, 255, 0.05);
+}
+
+.shadow-accent-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 82, 255, 0.1), 0 10px 10px -5px rgba(0, 82, 255, 0.04);
+}
+
+.shadow-accent-glow {
+  box-shadow: 0 0 20px rgba(0, 82, 255, 0.3);
+}
+
+/* Hide scrollbar for clean tables if needed */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Typography Utilities */
+.type-h1 {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  line-height: 1.1;
+  font-weight: 500;
+  /* Calistoga is usually 400, but ensuring weight is reset */
+}
+
+@media (min-width: 768px) {
+  .type-h1 {
+    font-size: 3.75rem;
+    /* 60px */
+  }
+}
+
+.type-h2 {
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  /* 36px */
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+@media (min-width: 768px) {
+  .type-h2 {
+    font-size: 3rem;
+    /* 48px */
+  }
+}
+
+.type-h3 {
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  /* 20px */
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.type-body {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.type-label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  /* 12px */
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+}
+
+.type-label {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  /* 14px */
+  font-weight: 500;
+}
+
+@layer utilities {
+  .animate-float-slow {
+    animation: float 8s ease-in-out infinite;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-rotate-slow {
+    animation: rotate 20s linear infinite;
+  }
+
+  .hover-lift {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px -10px rgba(0, 82, 255, 0.15);
+  }
+
+  .hover-glow-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hover-glow-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  .hover-glow-card:hover::after {
+    opacity: 1;
+  }
+
+  .group-hover-slide-right {
+    transition: transform 0.2s ease-out;
+  }
+
+  .group:hover .group-hover-slide-right {
+    transform: translateX(4px);
+  }
+
+  /* Reduce Motion support */
+  @media (prefers-reduced-motion: reduce) {
+
+    .animate-float-slow,
+    .animate-pulse-slow,
+    .animate-rotate-slow,
+    .hover-lift {
+      animation: none !important;
+      transform: none !important;
+      transition: none !important;
+    }
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
