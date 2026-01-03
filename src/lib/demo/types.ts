@@ -64,6 +64,10 @@ export interface Campaign {
     targetSegment: string;
     platform: ('Google Ads' | 'Meta' | 'Email' | 'Shopify')[];
     headline: string;
+    body?: string;
+    cta?: string;
+    startDate?: string;
+    endDate?: string;
     stats?: {
         impressions: number;
         clicks: number;

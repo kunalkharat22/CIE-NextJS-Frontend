@@ -44,6 +44,18 @@ interface LiveInteraction {
     risk?: 'High' | 'Medium' | 'Low';
 }
 
+interface SessionLog {
+    message: string;
+    timestamp: string;
+    type: 'info' | 'success' | 'warning';
+}
+
+interface SessionData {
+    isEscalated: boolean;
+    isApplied: boolean;
+    logs: SessionLog[];
+}
+
 const MOCK_DATA: LiveInteraction[] = [
     // Live Calls
     {
@@ -148,6 +160,37 @@ export default function LiveCoachingPage() {
         return list;
     }, [mode, channelFilter]);
 
+    // Local State for Persistence
+    const [sessionData, setSessionData] = React.useState<Record<string, SessionData>>({})
+    const [responseInput, setResponseInput] = React.useState("")
+    const isLoaded = React.useRef(false)
+
+    // Load from LocalStorage
+    React.useEffect(() => {
+        const saved = localStorage.getItem('cie_live_sessions')
+        if (saved) {
+            try {
+                setSessionData(JSON.parse(saved))
+            } catch (e) {
+                console.error("Failed to parse session data", e)
+            }
+        }
+        isLoaded.current = true
+    }, [])
+
+    // Save to LocalStorage
+    React.useEffect(() => {
+        if (isLoaded.current) {
+            localStorage.setItem('cie_live_sessions', JSON.stringify(sessionData))
+        }
+    }, [sessionData])
+
+    // Helper to get current session data safely
+    const getSession = (id: string) => sessionData[id] || { isEscalated: false, isApplied: false, logs: [] }
+
+    // Helper to format timestamp
+    const getTime = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+
     // Auto-select first item if exists and none selected
     React.useEffect(() => {
         if (filteredList.length > 0 && !selectedId) {
@@ -157,13 +200,58 @@ export default function LiveCoachingPage() {
         }
     }, [filteredList, selectedId, mode]); // Add mode dependency to re-select on switch
 
+    // Reset input when selection changes
+    React.useEffect(() => {
+        setResponseInput("")
+    }, [selectedId])
+
     const activeItem = MOCK_DATA.find(i => i.id === selectedId) || null;
+    const currentSession = activeItem ? getSession(activeItem.id) : null;
+
+    const suggestedText = activeItem ? (activeItem.channel === 'Email'
+        ? "I apologize for the delay. I have escalated this breach of SLA to our management team and we will issue a credit."
+        : "I hear your frustration. Let's look at that together right now.") : "";
 
     const handleApplySuggestion = (text: string) => {
+        if (!activeItem) return;
+
+        const newLog: SessionLog = {
+            message: "AI response applied",
+            timestamp: getTime(),
+            type: 'success'
+        };
+
+        setSessionData(prev => ({
+            ...prev,
+            [activeItem.id]: {
+                ...getSession(activeItem.id),
+                isApplied: true,
+                logs: [newLog, ...getSession(activeItem.id).logs] // Prepend new logs
+            }
+        }));
+
+        setResponseInput(text);
         toast.success("Action logged successfully", { description: "Outcome updated." });
     }
 
     const handleEscalate = () => {
+        if (!activeItem) return;
+
+        const newLog: SessionLog = {
+            message: "Escalated to manager",
+            timestamp: getTime(),
+            type: 'warning'
+        };
+
+        setSessionData(prev => ({
+            ...prev,
+            [activeItem.id]: {
+                ...getSession(activeItem.id),
+                isEscalated: true,
+                logs: [newLog, ...getSession(activeItem.id).logs]
+            }
+        }));
+
         toast.warning("Escalated to Manager");
     }
 
@@ -200,6 +288,11 @@ export default function LiveCoachingPage() {
                             <Badge variant="outline" className={cn("text-xs uppercase tracking-wider", activeItem.status === 'live' ? "border-green-200 text-green-700 bg-green-50 animate-pulse" : "border-gray-200 text-gray-600")}>
                                 {activeItem.status === 'live' ? 'Live Session' : 'Ended Session'}
                             </Badge>
+                            {currentSession?.isEscalated && (
+                                <Badge variant="risk-high" className="text-xs uppercase tracking-wider animate-in fade-in zoom-in">
+                                    Escalated
+                                </Badge>
+                            )}
                         </div>
                     )}
                 </div>
@@ -265,6 +358,9 @@ export default function LiveCoachingPage() {
                                                 <div className="flex items-center gap-2">
                                                     <div className={cn("h-2 w-2 rounded-full", item.status === 'live' ? "bg-red-500 animate-pulse" : "bg-gray-400")} />
                                                     <span className="font-medium text-sm truncate max-w-[100px]">{item.name}</span>
+                                                    {getSession(item.id).isEscalated && (
+                                                        <Badge variant="risk-high" className="h-4 px-1 text-[8px]">Escalated</Badge>
+                                                    )}
                                                 </div>
                                                 <span className="font-mono text-xs text-muted-foreground">
                                                     {item.channel === 'Email' ? 'Thread' : item.duration}
@@ -377,7 +473,12 @@ export default function LiveCoachingPage() {
 
                                 <CardFooter className="p-4 bg-white border-t border-border">
                                     <div className="relative w-full">
-                                        <Input placeholder={activeItem.channel === 'Email' ? "Draft a reply..." : "Type a response or use AI suggestion..."} className="pr-12" />
+                                        <Input
+                                            placeholder={activeItem.channel === 'Email' ? "Draft a reply..." : "Type a response or use AI suggestion..."}
+                                            className="pr-12"
+                                            value={responseInput}
+                                            onChange={(e) => setResponseInput(e.target.value)}
+                                        />
                                         <Button size="icon" className="absolute right-1 top-1 h-10 w-10 bg-transparent text-accent hover:bg-accent/10 shadow-none border-0">
                                             <Send className="h-5 w-5" />
                                         </Button>
@@ -414,21 +515,19 @@ export default function LiveCoachingPage() {
                                             <div>
                                                 <p className="text-sm font-medium mb-2">Suggested Response:</p>
                                                 <div className="p-3 bg-muted/20 rounded-lg text-sm italic text-muted-foreground border border-border/50">
-                                                    "{activeItem.channel === 'Email'
-                                                        ? "I apologize for the delay. I have escalated this breach of SLA to our management team and we will issue a credit."
-                                                        : "I hear your frustration. Let's look at that together right now."
-                                                    }"
+                                                    "{suggestedText}"
                                                 </div>
                                             </div>
 
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                                 <Button
                                                     size="sm"
-                                                    className="h-8 text-xs bg-accent text-white hover:bg-accent/90"
-                                                    onClick={() => handleApplySuggestion("")}
+                                                    className={cn("h-8 text-xs", currentSession?.isApplied ? "bg-green-600 hover:bg-green-700 text-white" : "bg-accent text-white hover:bg-accent/90")}
+                                                    onClick={() => handleApplySuggestion(suggestedText)}
+                                                    disabled={currentSession?.isApplied}
                                                 >
                                                     <CheckCircle className="h-3 w-3 mr-2" />
-                                                    Apply
+                                                    {currentSession?.isApplied ? "Applied ✓" : "Apply"}
                                                 </Button>
                                                 <Button
                                                     size="sm"
@@ -463,6 +562,20 @@ export default function LiveCoachingPage() {
                                         </CardHeader>
                                         <CardContent className="space-y-4 max-h-60 overflow-y-auto text-xs">
                                             <div className="space-y-4 relative border-l border-border ml-2 pl-4">
+                                                {/* Dynamic Logs */}
+                                                {currentSession?.logs.map((log, idx) => (
+                                                    <div key={idx} className="relative animate-in slide-in-from-left-2 fade-in duration-300">
+                                                        <div className={cn("absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-background",
+                                                            log.type === 'success' ? "bg-green-500" : log.type === 'warning' ? "bg-red-500" : "bg-accent"
+                                                        )} />
+                                                        <div className="flex justify-between items-start mb-0.5">
+                                                            <span className="font-semibold">{log.message}</span>
+                                                            <span className="text-[10px] text-muted-foreground">{log.timestamp}</span>
+                                                        </div>
+                                                    </div>
+                                                ))}
+
+                                                {/* Initial Log */}
                                                 <div className="relative">
                                                     <div className="absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full bg-accent border-2 border-background" />
                                                     <div className="flex justify-between items-start mb-0.5">

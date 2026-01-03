@@ -32,7 +32,9 @@ import {
     Save,
     ArrowLeft,
     SlidersHorizontal,
-    Info
+    Info,
+    UserX,
+    CheckSquare
 } from "lucide-react"
 
 export default function IntakePage() {
@@ -54,6 +56,47 @@ export default function IntakePage() {
     })
 
     const [errors, setErrors] = React.useState<Record<string, string>>({})
+
+    // Derived Churn Risk Logic
+    const churnData = React.useMemo(() => {
+        if (!scoringResult) return { level: 'Low', score: 0, actions: [] }
+
+        let score = scoringResult.totalScore * 0.4;
+        if (formData.isRepeat) score += 30;
+
+        // Simple keyword check from text
+        const text = formData.complaintText.toLowerCase();
+        if (text.includes('cancel') || text.includes('close') || text.includes('refund') || text.includes('leave')) score += 25;
+        if (scoringResult.priority === 'P1') score += 15;
+
+        score = Math.min(100, Math.round(score));
+
+        let level = 'Low';
+        if (score > 70) level = 'High';
+        else if (score > 40) level = 'Medium';
+
+        // Recommendation Actions
+        const actions: string[] = [];
+        if (formData.category === 'Billing' && level === 'High') {
+            actions.push("Offer refund/credit approval");
+        }
+        if (level === 'High' || scoringResult.priority === 'P1' || scoringResult.priority === 'P2') {
+            actions.push("Escalate to Tier 2 / Retention team");
+        }
+        if (level === 'Medium') {
+            actions.push("Send apology + timeline update template");
+        }
+        if (level === 'Low' && scoringResult.priority !== 'P1') {
+            actions.push("Route to standard support queue");
+        }
+        if (level === 'Medium' || level === 'High') {
+            actions.push("Schedule follow-up within 24h");
+        }
+        // Fallback
+        if (actions.length === 0) actions.push("Review and assess impact");
+
+        return { level, score, actions };
+    }, [scoringResult, formData]);
 
     const handleChange = (field: string, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }))
@@ -138,19 +181,23 @@ export default function IntakePage() {
     const handleSave = () => {
         if (!scoringResult) return
 
-        // Dispatch to store
+        // Dispatch to store with extra frontend-only fields
         dispatch({
             type: 'ADD_COMPLAINT',
             payload: {
                 id: `TKT-${Math.floor(Math.random() * 10000)}`,
-                customerId: `CUST-${Math.floor(Math.random() * 1000)}`, // Mock customer
+                customerId: `CUST-${Math.floor(Math.random() * 1000)}`,
                 issue: formData.category,
                 description: formData.complaintText,
-                channel: formData.channel as any, // "Voice" | "Chat" | "Email" | "Social" matches Channel type mostly
+                channel: formData.channel as any,
                 timestamp: new Date().toISOString(),
                 status: 'open',
-                riskLevel: scoringResult.risk.toLowerCase() as any, // "High" -> "high"
-                sentimentScore: 40 // Default
+                riskLevel: scoringResult.risk.toLowerCase() as any,
+                sentimentScore: 40,
+                // @ts-ignore - frontend only extension
+                churnRisk: churnData.level,
+                // @ts-ignore - frontend only extension
+                nextSteps: churnData.actions
             }
         })
 
@@ -158,7 +205,6 @@ export default function IntakePage() {
         router.push('/') // Back to dashboard
     }
 
-    // Override Handlers
     const updateResult = (field: keyof ScoringResult, value: any) => {
         if (!scoringResult) return
         setScoringResult({ ...scoringResult, [field]: value, isOverridden: true } as any)
@@ -196,7 +242,7 @@ export default function IntakePage() {
                         )}
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                         {/* Risk Card */}
                         <Card className="border-border shadow-sm">
                             <CardHeader className="pb-2">
@@ -281,6 +327,30 @@ export default function IntakePage() {
                                 </div>
                             </CardContent>
                         </Card>
+
+                        {/* Churn Risk Card - NEW */}
+                        <Card className="border-border shadow-sm">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Churn Risk</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <UserX className={cn("h-8 w-8",
+                                            churnData.level === 'High' ? "text-red-500" :
+                                                churnData.level === 'Medium' ? "text-orange-500" : "text-blue-500"
+                                        )} />
+                                        <div className="flex flex-col">
+                                            <span className={cn("text-2xl font-bold font-display leading-none",
+                                                churnData.level === 'High' ? "text-red-600" :
+                                                    churnData.level === 'Medium' ? "text-orange-600" : "text-blue-600"
+                                            )}>{churnData.level}</span>
+                                            <span className="text-[10px] text-muted-foreground">{churnData.score}% probability</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
 
                     {/* Explainability Section */}
@@ -336,25 +406,37 @@ export default function IntakePage() {
 
                         {/* Actions */}
                         <div className="space-y-4">
-                            <Card className="border-border shadow-sm h-full bg-slate-900 text-white border-none">
+                            <Card className="border-border shadow-sm h-full bg-slate-900 text-white border-none flex flex-col">
                                 <CardHeader>
                                     <CardTitle>Next Steps</CardTitle>
                                     <CardDescription className="text-slate-400">Recommended actions based on score.</CardDescription>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="p-3 rounded-lg bg-white/10 text-sm">
-                                        {scoringResult.priority === 'P1' ? (
-                                            "🚨 Immediate escalation to Trust & Safety team required."
-                                        ) : scoringResult.priority === 'P2' ? (
-                                            "⚠️ Assign to Senior Support Agent within 4 hours."
-                                        ) : (
-                                            "✓ Standard routing to General Support queue."
-                                        )}
+                                <CardContent className="space-y-4 flex-1">
+                                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-sm space-y-3">
+                                        {churnData.actions.map((action, i) => (
+                                            <div key={i} className="flex items-start gap-2">
+                                                <CheckSquare className="h-4 w-4 text-accent shrink-0 mt-0.5" />
+                                                <span className="leading-tight text-slate-200">{action}</span>
+                                            </div>
+                                        ))}
                                     </div>
-                                    <Button className="w-full bg-white text-black hover:bg-white/90" size="lg" onClick={handleSave}>
-                                        <Save className="h-4 w-4 mr-2" />
-                                        Save & Route Ticket
-                                    </Button>
+                                    <div className="mt-auto pt-4">
+                                        <Button
+                                            className={cn("w-full transition-all",
+                                                (churnData.level === 'High' || scoringResult.priority === 'P1' || scoringResult.priority === 'P2')
+                                                    ? "bg-red-600 hover:bg-red-700 text-white"
+                                                    : "bg-white text-black hover:bg-white/90"
+                                            )}
+                                            size="lg"
+                                            onClick={handleSave}
+                                        >
+                                            <Save className="h-4 w-4 mr-2" />
+                                            {(churnData.level === 'High' || scoringResult.priority === 'P1' || scoringResult.priority === 'P2')
+                                                ? "Escalate to Tier 2 / Retention"
+                                                : "Save & Route Ticket"
+                                            }
+                                        </Button>
+                                    </div>
                                 </CardContent>
                             </Card>
                         </div>

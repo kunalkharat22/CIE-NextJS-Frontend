@@ -6,18 +6,192 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useDemo } from "@/lib/demo/store"
-import { Megaphone, ExternalLink } from "lucide-react"
+import {
+    Megaphone,
+    ExternalLink,
+    X,
+    Calendar,
+    Sparkles,
+    Target,
+    Layers
+} from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export default function CampaignsListPage() {
     const { state } = useDemo()
     const router = useRouter()
 
+    const [viewingCampaign, setViewingCampaign] = React.useState<any | null>(null) // Using any to bypass strict type check for now or cast later
+
     const campaigns = state.campaigns || []
+
+    React.useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") setViewingCampaign(null)
+        }
+        window.addEventListener("keydown", handleKeyDown)
+        return () => window.removeEventListener("keydown", handleKeyDown)
+    }, [])
+
+    const handleOpenEditor = () => {
+        // Ideally we pass the ID to load it. For now, we mock the navigation.
+        router.push('/studio/create')
+    }
 
     return (
         <DashboardLayout>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 relative">
+                {/* Modal */}
+                {viewingCampaign && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+                        <div
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+                            onClick={() => setViewingCampaign(null)}
+                        />
+                        <div className="relative w-full max-w-4xl bg-card border border-border rounded-xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                            {/* Header */}
+                            <div className="flex items-center justify-between p-6 border-b border-border bg-card">
+                                <div className="space-y-1.5">
+                                    <div className="flex items-center gap-3">
+                                        <h2 className="text-xl font-bold tracking-tight">{viewingCampaign.name}</h2>
+                                        <Badge variant="outline" className={
+                                            viewingCampaign.status === 'active' ? 'bg-green-50 text-green-700 border-green-200' :
+                                                viewingCampaign.status === 'draft' ? 'bg-gray-50 text-gray-500 border-gray-200' :
+                                                    'bg-yellow-50 text-yellow-700 border-yellow-200'
+                                        }>
+                                            {viewingCampaign.status === 'active' ? 'Published' : viewingCampaign.status}
+                                        </Badge>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                                        <Calendar className="h-3.5 w-3.5" />
+                                        Created {viewingCampaign.startDate || new Date().toLocaleDateString()}
+                                    </p>
+                                </div>
+                                <Button variant="ghost" size="icon" onClick={() => setViewingCampaign(null)} className="h-8 w-8 rounded-full">
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+
+                            {/* Body */}
+                            <div className="flex-1 overflow-y-auto p-6 bg-muted/5">
+                                <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                                    {/* Left Column: Details */}
+                                    <div className="md:col-span-5 space-y-6">
+                                        {/* Platforms */}
+                                        <div className="space-y-3">
+                                            <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Platforms</h4>
+                                            <div className="flex gap-2">
+                                                {viewingCampaign.platform.map((p: string) => (
+                                                    <div key={p} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-background border border-border shadow-sm text-sm font-medium">
+                                                        {p.includes('Google') ? <GoogleIcon className="h-4 w-4" /> :
+                                                            p.includes('Meta') ? <FacebookIcon className="h-4 w-4" /> :
+                                                                <ShoppingBagIcon className="h-4 w-4" />}
+                                                        <span>{p.replace('Ads', '').trim()}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Target */}
+                                        <div className="space-y-3">
+                                            <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Strategy</h4>
+                                            <div className="rounded-lg border border-border bg-background p-4 space-y-4">
+                                                <div className="flex items-start gap-3">
+                                                    <div className="mt-0.5 h-8 w-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                                        <Target className="h-4 w-4" />
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-xs text-muted-foreground block mb-0.5">Target Segment</span>
+                                                        <span className="text-sm font-medium">{viewingCampaign.targetSegment}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-start gap-3">
+                                                    <div className="mt-0.5 h-8 w-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                                                        <Layers className="h-4 w-4" />
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-xs text-muted-foreground block mb-0.5">Linked Trend</span>
+                                                        <span className="text-sm font-medium">"Refund Policy Confusion"</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Content Info */}
+                                        <div className="space-y-3">
+                                            <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Content Assets</h4>
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <span className="text-xs text-muted-foreground block mb-1">Headline</span>
+                                                    <p className="text-sm font-medium leading-normal">{viewingCampaign.headline}</p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-xs text-muted-foreground block mb-1">Primary Text</span>
+                                                    <p className="text-sm text-muted-foreground leading-relaxed">{viewingCampaign.body || "No additional body text provided."}</p>
+                                                </div>
+                                                <div className="flex items-center gap-2 pt-2">
+                                                    <span className="text-xs text-muted-foreground">CTA:</span>
+                                                    <Badge variant="neutral" className="font-mono text-xs">{viewingCampaign.cta || "Learn More"}</Badge>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Right Column: Preview */}
+                                    <div className="md:col-span-7">
+                                        <div className="h-full bg-muted/30 rounded-2xl border border-border p-8 flex flex-col items-center justify-center relative overflow-hidden min-h-[400px]">
+                                            <div className="absolute top-4 left-4">
+                                                <Badge variant="outline" className="bg-background/50 backdrop-blur">Ad Preview</Badge>
+                                            </div>
+                                            {/* Mock Device Frame */}
+                                            <div className="w-full max-w-[320px] bg-white rounded-xl shadow-2xl border border-border overflow-hidden shrink-0 transform transition-transform hover:scale-[1.02]">
+                                                <div className="h-6 bg-slate-50 border-b border-border flex items-center px-3 gap-1.5">
+                                                    <div className="h-2 w-2 rounded-full bg-red-400/80" />
+                                                    <div className="h-2 w-2 rounded-full bg-yellow-400/80" />
+                                                    <div className="h-2 w-2 rounded-full bg-green-400/80" />
+                                                </div>
+                                                <div className="p-5 space-y-4">
+                                                    <div className="h-40 bg-gradient-to-br from-accent/5 to-purple-500/5 rounded-lg flex items-center justify-center text-accent/20 border border-dashed border-accent/20">
+                                                        <Sparkles className="h-10 w-10" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <h4 className="font-display font-medium text-lg leading-tight text-slate-900">{viewingCampaign.headline}</h4>
+                                                        <p className="text-sm text-muted-foreground leading-relaxed">
+                                                            {viewingCampaign.body || "Experience premium quality and dedicated support with every order."}
+                                                        </p>
+                                                    </div>
+                                                    <Button className="w-full h-10 text-sm font-semibold shadow-none bg-blue-600 hover:bg-blue-700 text-white">
+                                                        {viewingCampaign.cta || "Learn More"}
+                                                    </Button>
+                                                </div>
+                                                <div className="px-5 pb-4 pt-0">
+                                                    <div className="flex items-center justify-between text-[10px] text-muted-foreground border-t border-border/50 pt-3">
+                                                        <span>Sponsored</span>
+                                                        <div className="flex gap-1">
+                                                            <div className="h-1 w-1 rounded-full bg-slate-300"></div>
+                                                            <div className="h-1 w-1 rounded-full bg-slate-300"></div>
+                                                            <div className="h-1 w-1 rounded-full bg-slate-300"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="p-4 border-t border-border bg-card flex justify-end gap-3 z-10">
+                                <Button variant="outline" onClick={() => setViewingCampaign(null)}>Close</Button>
+                                <Button className="gap-2" onClick={handleOpenEditor}>
+                                    <ExternalLink className="h-4 w-4" />
+                                    Open in Editor
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Campaigns</h1>
@@ -82,7 +256,7 @@ export default function CampaignsListPage() {
                                                 {campaign.targetSegment || 'N/A'}
                                             </td>
                                             <td className="px-6 py-4 text-right">
-                                                <Button size="sm" variant="ghost" className="h-8">
+                                                <Button size="sm" variant="ghost" className="h-8" onClick={() => setViewingCampaign(campaign)}>
                                                     View
                                                 </Button>
                                             </td>
@@ -102,7 +276,7 @@ export default function CampaignsListPage() {
                         </div>
                     ) : (
                         campaigns.map((campaign) => (
-                            <Card key={campaign.id} className="overflow-hidden">
+                            <Card key={campaign.id} className="overflow-hidden" onClick={() => setViewingCampaign(campaign)}>
                                 <CardContent className="p-4 flex flex-col gap-3">
                                     <div className="flex justify-between items-start gap-3">
                                         <span className="font-medium truncate flex-1 min-w-0 text-sm">{campaign.name}</span>

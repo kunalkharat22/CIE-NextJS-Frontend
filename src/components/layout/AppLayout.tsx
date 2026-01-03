@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import {
@@ -25,6 +26,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { useDemo } from "@/lib/demo/store"
+import { useRouter } from "next/navigation"
 
 const navigation = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -61,6 +64,14 @@ export function Sidebar({ className, isOpen, onClose, collapsed, setCollapsed }:
 
     // Lucide imports for toggle
     const { ChevronRight, ChevronLeft } = require("lucide-react")
+    const [showUserMenu, setShowUserMenu] = React.useState(false)
+    const { logout, state } = useDemo() // state might be needed or just logout
+    const router = useRouter()
+
+    const handleLogout = () => {
+        logout()
+        router.push('/login')
+    }
 
     return (
         <>
@@ -82,9 +93,10 @@ export function Sidebar({ className, isOpen, onClose, collapsed, setCollapsed }:
                 {/* Header / Logo */}
                 <div className={cn("p-6 flex items-center", isCollapsed ? "justify-center" : "justify-between")}>
                     <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-lg bg-signature-gradient flex items-center justify-center shadow-lg shadow-accent/20 shrink-0">
-                            <span className="text-white font-display font-bold text-lg">C</span>
+                        <div className="relative h-9 w-9 shrink-0">
+                            <Image src="/logo.png" alt="CIE Logo" fill className="object-contain" priority />
                         </div>
+
                         <div className={cn("overflow-hidden transition-all duration-300 flex items-center", isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100")}>
                             <span className="font-display text-xl font-bold tracking-tight whitespace-nowrap">CIE</span>
                             <Badge variant="outline" className="text-[10px] py-0 h-5 border-accent/20 text-accent bg-accent/5 ml-2">
@@ -179,10 +191,32 @@ export function Sidebar({ className, isOpen, onClose, collapsed, setCollapsed }:
                         </Button>
                     </div>
 
+                    {/* User Menu Popup */}
+                    {!isCollapsed && showUserMenu && (
+                        <>
+                            <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
+                            <div className="absolute bottom-full right-4 mb-2 w-56 rounded-xl border border-border bg-popover p-2 shadow-xl z-50 animate-in slide-in-from-bottom-2 fade-in duration-200">
+                                <div className="px-2 py-1.5 border-b border-border/50 mb-1">
+                                    <p className="text-xs font-semibold">My Account</p>
+                                </div>
+                                <Button
+                                    variant="ghost"
+                                    className="w-full justify-start gap-2 h-9 text-sm text-red-600 hover:text-red-700 hover:bg-red-50"
+                                    onClick={handleLogout}
+                                >
+                                    <LogOut className="h-4 w-4" />
+                                    Log out
+                                </Button>
+                            </div>
+                        </>
+                    )}
+
                     <div className={cn(
-                        "flex items-center rounded-xl bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors cursor-pointer group",
+                        "flex items-center rounded-xl bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors cursor-pointer group select-none",
                         isCollapsed ? "justify-center p-2 flex-col gap-1 aspect-square" : "gap-3 p-3"
-                    )}>
+                    )}
+                        onClick={() => !isCollapsed && setShowUserMenu(!showUserMenu)}
+                    >
                         <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-400 to-cyan-400 flex items-center justify-center text-white font-medium text-xs shadow-sm shrink-0">
                             JD
                         </div>
@@ -191,7 +225,10 @@ export function Sidebar({ className, isOpen, onClose, collapsed, setCollapsed }:
                             <p className="text-xs text-muted-foreground truncate">john@cie.ai</p>
                         </div>
                         {!isCollapsed && (
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={(e) => {
+                                e.stopPropagation();
+                                setShowUserMenu(!showUserMenu);
+                            }}>
                                 <MoreVertical className="h-4 w-4" />
                             </Button>
                         )}

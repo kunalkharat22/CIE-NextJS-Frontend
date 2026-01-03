@@ -28,36 +28,38 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Demo Tools</CardTitle>
-                            <CardDescription>Manage the prototype data state.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex flex-col gap-4 sm:flex-row">
-                                <Button variant="outline" onClick={resetDemo}>
-                                    <RefreshCw className="mr-2 h-4 w-4" />
-                                    Reset Demo State
-                                </Button>
-                                <Button variant="outline" onClick={handleExport}>
-                                    <Download className="mr-2 h-4 w-4" />
-                                    Export Data JSON
-                                </Button>
-                            </div>
-                            <div className="p-4 bg-muted/50 rounded-lg border border-border mt-4">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Database className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm font-medium">Current State Overview</span>
+                    {process.env.NEXT_PUBLIC_DEBUG === 'true' && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Demo Tools</CardTitle>
+                                <CardDescription>Manage the prototype data state.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex flex-col gap-4 sm:flex-row">
+                                    <Button variant="outline" onClick={resetDemo}>
+                                        <RefreshCw className="mr-2 h-4 w-4" />
+                                        Reset Demo State
+                                    </Button>
+                                    <Button variant="outline" onClick={handleExport}>
+                                        <Download className="mr-2 h-4 w-4" />
+                                        Export Data JSON
+                                    </Button>
                                 </div>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
-                                    <div>Customers: <span className="text-foreground font-mono">{state.customers.length}</span></div>
-                                    <div>Complaints: <span className="text-foreground font-mono">{state.complaints.length}</span></div>
-                                    <div>Trends: <span className="text-foreground font-mono">{state.trends.length}</span></div>
-                                    <div>Campaigns: <span className="text-foreground font-mono">{state.campaigns.length}</span></div>
+                                <div className="p-4 bg-muted/50 rounded-lg border border-border mt-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Database className="h-4 w-4 text-muted-foreground" />
+                                        <span className="text-sm font-medium">Current State Overview</span>
+                                    </div>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
+                                        <div>Customers: <span className="text-foreground font-mono">{state.customers.length}</span></div>
+                                        <div>Complaints: <span className="text-foreground font-mono">{state.complaints.length}</span></div>
+                                        <div>Trends: <span className="text-foreground font-mono">{state.trends.length}</span></div>
+                                        <div>Campaigns: <span className="text-foreground font-mono">{state.campaigns.length}</span></div>
+                                    </div>
                                 </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    )}
 
                     <Card className="opacity-50 pointer-events-none">
                         <CardHeader>

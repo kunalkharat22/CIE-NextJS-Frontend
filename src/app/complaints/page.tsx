@@ -16,9 +16,22 @@ function IconForPlatform({ platform }: { platform: string }) {
     return <MessageCircle className="h-3 w-3 inline mr-1" />
 }
 
+import { Complaint } from "@/lib/demo/types"
+import { X, ShieldAlert, Activity } from "lucide-react"
+
 export default function ComplaintsPage() {
     const { state, dispatch } = useDemo()
     const complaints = getFilteredComplaints(state)
+    const [selectedComplaint, setSelectedComplaint] = React.useState<Complaint | null>(null)
+
+    // Handle ESC key to close modal
+    React.useEffect(() => {
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setSelectedComplaint(null)
+        }
+        window.addEventListener('keydown', handleEsc)
+        return () => window.removeEventListener('keydown', handleEsc)
+    }, [])
 
     const toggleRiskFilter = (group: 'high' | 'medium' | 'low') => {
         const current = state.filters.riskLevels;
@@ -47,6 +60,13 @@ export default function ComplaintsPage() {
         if (group === 'medium') return current.includes('medium');
         if (group === 'low') return current.includes('low');
         return false;
+    }
+
+    const handleEscalate = () => {
+        if (selectedComplaint) {
+            dispatch({ type: 'ESCALATE_COMPLAINT', payload: { complaintId: selectedComplaint.id } })
+            setSelectedComplaint(prev => prev ? { ...prev, status: 'escalated', riskLevel: 'critical' } : null)
+        }
     }
 
     return (
@@ -120,12 +140,6 @@ export default function ComplaintsPage() {
                         <Input
                             placeholder="Search by customer, id, or content..."
                             className="pl-9 bg-background"
-                        // Note: Actual search implementation might require store update or local filtering. 
-                        // The current selector `getFilteredComplaints` doesn't explicitly handle a text search query from the store 
-                        // unless it was added to the standard filter state. 
-                        // Checking types.ts: User added query? No. 
-                        // I will skip Implementing text search functionality for now unless I add it to the store. 
-                        // Or I can add local state here. 
                         />
                     </div>
                 </div>
@@ -157,7 +171,11 @@ export default function ComplaintsPage() {
                                     complaints.map(c => {
                                         const customer = state.customers.find(cx => cx.id === c.customerId);
                                         return (
-                                            <tr key={c.id} className="hover:bg-muted/30 transition-colors group cursor-pointer">
+                                            <tr
+                                                key={c.id}
+                                                className="hover:bg-muted/30 transition-colors group cursor-pointer"
+                                                onClick={() => setSelectedComplaint(c)}
+                                            >
                                                 <td className="px-4 py-3 font-mono text-xs text-muted-foreground whitespace-nowrap">{c.id}</td>
                                                 <td className="px-4 py-3 font-medium text-foreground max-w-[140px] truncate">
                                                     {customer?.name || 'Unknown Customer'}
@@ -210,15 +228,115 @@ export default function ComplaintsPage() {
                             </tbody>
                         </table>
                     </div>
-                    <div className="p-4 border-t border-border text-xs text-muted-foreground flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0">
-                        <span>Showing {complaints.length} results</span>
-                        <div className="flex gap-2">
-                            <Button variant="outline" size="sm" disabled>Previous</Button>
-                            <Button variant="outline" size="sm" disabled>Next</Button>
+                </div>
+            </div>
+
+            {/* Complaint Details Modal (Frontend Only) */}
+            {selectedComplaint && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200 backdrop-blur-sm"
+                    onClick={() => setSelectedComplaint(null)}
+                >
+                    <div
+                        className="bg-background rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        {/* Modal Header */}
+                        <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-muted/30">
+                            <div>
+                                <h2 className="text-lg font-semibold">Complaint Details</h2>
+                                <p className="text-xs text-muted-foreground font-mono">ID: {selectedComplaint.id}</p>
+                            </div>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => setSelectedComplaint(null)}>
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+
+                            {/* Key Signals */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <div className="space-y-1">
+                                    <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Risk Level</span>
+                                    <div>
+                                        <Badge variant={
+                                            selectedComplaint.riskLevel === 'critical' ? 'risk-high' :
+                                                selectedComplaint.riskLevel === 'high' ? 'risk-high' :
+                                                    selectedComplaint.riskLevel === 'medium' ? 'risk-med' : 'neutral'
+                                        } className="capitalize">{selectedComplaint.riskLevel}</Badge>
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Sentiment</span>
+                                    <div className="flex items-center gap-2">
+                                        <Activity className={cn("h-4 w-4", selectedComplaint.sentimentScore < 40 ? "text-red-500" : "text-green-500")} />
+                                        <span className="font-bold">{selectedComplaint.sentimentScore}</span>
+                                        <span className="text-xs text-muted-foreground">/100</span>
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Channel</span>
+                                    <div className="flex items-center gap-2 text-sm font-medium">
+                                        <IconForPlatform platform={selectedComplaint.channel} />
+                                        {selectedComplaint.channel}
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Status</span>
+                                    <div className="text-sm font-medium capitalize">{selectedComplaint.status}</div>
+                                </div>
+                            </div>
+
+                            {/* Main Content */}
+                            <div className="space-y-3">
+                                <h3 className="text-sm font-semibold border-b border-border pb-2">Description</h3>
+                                <div className="space-y-2">
+                                    <div className="font-medium text-sm">{selectedComplaint.issue}</div>
+                                    <div className="text-sm text-muted-foreground leading-relaxed p-3 bg-muted/20 rounded-lg border border-border/50">
+                                        "{selectedComplaint.description}"
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* AI Analysis Mockup */}
+                            <div className="space-y-3">
+                                <h3 className="text-sm font-semibold border-b border-border pb-2 flex items-center gap-2">
+                                    <ShieldAlert className="h-4 w-4 text-accent" />
+                                    Detected Signals
+                                </h3>
+                                <div className="grid gap-2">
+                                    <div className="flex items-center justify-between text-sm p-2 bg-slate-50 rounded">
+                                        <span className="text-slate-700">Churn Risk Detected</span>
+                                        <Badge variant="outline" className="border-red-200 text-red-700 bg-red-50">High Confidence</Badge>
+                                    </div>
+                                    <div className="flex items-center justify-between text-sm p-2 bg-slate-50 rounded">
+                                        <span className="text-slate-700">Negative Sentiment Spike</span>
+                                        <Badge variant="outline" className="border-orange-200 text-orange-700 bg-orange-50">Medium Confidence</Badge>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="p-4 border-t border-border bg-muted/10 flex justify-end gap-3 rounded-b-xl">
+                            <Button variant="outline" onClick={() => setSelectedComplaint(null)}>Close</Button>
+                            <div className="flex-1 sm:flex-none"></div>
+                            <Button variant="secondary" className="gap-2">View Scoring</Button>
+                            {selectedComplaint.status !== 'escalated' && selectedComplaint.status !== 'resolved' && (
+                                <Button
+                                    className="bg-red-600 hover:bg-red-700 text-white gap-2"
+                                    onClick={handleEscalate}
+                                >
+                                    <AlertTriangle className="h-4 w-4" />
+                                    Escalate
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
         </DashboardLayout>
     )
 }

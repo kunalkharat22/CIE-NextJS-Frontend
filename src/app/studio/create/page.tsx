@@ -56,14 +56,14 @@ export default function StudioPage() {
     })
 
     // Content State per Tab
-    const [campaignContent, setCampaignContent] = React.useState<Record<string, { headline: string, body: string, cta: string }>>({
-        trust: { headline: "", body: "", cta: "" },
-        speed: { headline: "", body: "", cta: "" },
-        service: { headline: "", body: "", cta: "" }
+    const [campaignContent, setCampaignContent] = React.useState<Record<string, { headline: string, body: string, cta: string, ctaUrl: string }>>({
+        trust: { headline: "", body: "", cta: "", ctaUrl: "" },
+        speed: { headline: "", body: "", cta: "", ctaUrl: "" },
+        service: { headline: "", body: "", cta: "", ctaUrl: "" }
     })
 
     // Current Content Accessor
-    const currentContent = campaignContent[activeTab] || { headline: "", body: "", cta: "" }
+    const currentContent = campaignContent[activeTab] || { headline: "", body: "", cta: "", ctaUrl: "" }
     const setContent = (field: string, value: string) => {
         setCampaignContent(prev => ({
             ...prev,
@@ -74,23 +74,40 @@ export default function StudioPage() {
     // Auto-fill Editor Logic
     React.useEffect(() => {
         if (activeTrend) {
-            setCampaignContent({
-                trust: {
-                    headline: `We hear you: ${activeTrend.name}`,
-                    body: `We apologize for the ${activeTrend.name}. Transparency is our priority. We have identified the issue and are working to rebuild your trust.`,
-                    cta: "Read Our Full Statement"
-                },
-                speed: {
-                    headline: `Fixed: ${activeTrend.name}`,
-                    body: `The issue regarding ${activeTrend.name} has been resolved. Our team deployed a speed update to ensure this doesn't happen again.`,
-                    cta: "View System Status"
-                },
-                service: {
-                    headline: `Our Promise: Better Service`,
-                    body: `Regarding ${activeTrend.name}: We are committed to better service. If you were affected, please reach out for immediate assistance.`,
-                    cta: "Contact Support"
-                }
-            })
+            if (activeTrend.name === "Delivery Delay Spike") {
+                const common = {
+                    headline: "Now Faster Delivery – Because We Listened",
+                    body: "We apologize for the recent delays. We’ve upgraded our logistics partner to ensure this doesn’t happen again. All affected orders have been prioritized. Expect normal times by Monday.",
+                    cta: "Learn More",
+                    ctaUrl: "https://cie.ai/help"
+                };
+                setCampaignContent({
+                    trust: common,
+                    speed: common,
+                    service: common
+                })
+            } else {
+                setCampaignContent({
+                    trust: {
+                        headline: `We hear you: ${activeTrend.name}`,
+                        body: `We apologize for the ${activeTrend.name}. Transparency is our priority. We have identified the issue and are working to rebuild your trust.`,
+                        cta: "Read Our Full Statement",
+                        ctaUrl: "https://cie.ai/blog/update"
+                    },
+                    speed: {
+                        headline: `Fixed: ${activeTrend.name}`,
+                        body: `The issue regarding ${activeTrend.name} has been resolved. Our team deployed a speed update to ensure this doesn't happen again.`,
+                        cta: "View System Status",
+                        ctaUrl: "https://status.cie.ai"
+                    },
+                    service: {
+                        headline: `Our Promise: Better Service`,
+                        body: `Regarding ${activeTrend.name}: We are committed to better service. If you were affected, please reach out for immediate assistance.`,
+                        cta: "Contact Support",
+                        ctaUrl: "https://cie.ai/support"
+                    }
+                })
+            }
         }
     }, [activeTrend])
 
@@ -281,7 +298,12 @@ export default function StudioPage() {
                                             value={currentContent.cta}
                                             onChange={(e) => setContent("cta", e.target.value)}
                                         />
-                                        <Input defaultValue="https://cie.ai/help" className="text-muted-foreground bg-muted/30" readOnly />
+                                        <Input
+                                            value={currentContent.ctaUrl}
+                                            onChange={(e) => setContent("ctaUrl", e.target.value)}
+                                            placeholder="https://"
+                                            className="text-muted-foreground bg-muted/30"
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -334,7 +356,7 @@ export default function StudioPage() {
 
                         {/* Preview Column */}
                         <div className="flex flex-col gap-6">
-                            <div className="flex-1 bg-muted/30 rounded-2xl border border-border p-6 flex flex-col items-center justify-center relative overflow-hidden">
+                            <div className="flex-1 bg-muted/30 rounded-2xl border border-border p-6 flex flex-col items-center justify-start relative overflow-hidden">
                                 {/* Mock Device Frame */}
                                 <div className="w-full max-w-[300px] bg-white rounded-xl shadow-2xl border border-border overflow-hidden shrink-0">
                                     <div className="h-4 bg-muted border-b border-border flex items-center px-2 gap-1">

@@ -21,9 +21,14 @@ const MOCK_COMPLAINTS: Complaint[] = [
 ];
 
 const MOCK_TRENDS: Trend[] = [
-    { id: "t1", name: "Hidden Fees Outrage", volume: 124, impactScore: 92, sentiment: 15, growth: 24, description: "High volume of complaints regarding 'surprise service charges'.", examples: ["Did not expect extra $5...", "Why is there a service fee?"] },
-    { id: "t2", name: "Login Loop Bug", volume: 85, impactScore: 85, sentiment: 10, growth: 12, description: "Users reporting inability to access dashboard after update.", examples: ["Can't login...", "Stuck on loading screen"] },
-    { id: "t3", name: "Feature Request: Dark Mode", volume: 42, impactScore: 65, sentiment: 60, growth: 8, description: "Growing demand for dark mode support in mobile app.", examples: ["My eyes hurt...", "Need dark mode"] },
+    { id: "t6", name: "Delivery Delay Spike", volume: 67, impactScore: 55, sentiment: 45, growth: 15, description: "Recent surge in shipping complaints due to logistics partner switch.", examples: ["Package is 5 days late.", "Tracking number invalid.", "Where is my order?"] },
+    { id: "t1", name: "Hidden Fees Outrage", volume: 156, impactScore: 92, sentiment: 15, growth: 24, description: "Surge in complaints regarding 'surprise service charges' at checkout.", examples: ["Did not expect extra $5 service fee...", "Service fee wasn't mentioned on product page.", "Refunding this due to hidden fees."] },
+    { id: "t2", name: "Login Loop Bug", volume: 98, impactScore: 88, sentiment: 10, growth: 45, description: "Users reporting inability to access dashboard after Monday's update.", examples: ["Can't login, page just refreshes...", "Stuck on loading screen forever.", "Fix your login please!"] },
+    { id: "t3", name: "Refund Policy Confusion", volume: 76, impactScore: 65, sentiment: 35, growth: 12, description: "Customers unclear about the 30-day window vs receipt date.", examples: ["Why was my refund denied?", "Policy is very vague about return shipping.", "Thought I had 60 days?"] },
+    { id: "t4", name: "Checkout Timeout", volume: 45, impactScore: 60, sentiment: 40, growth: 5, description: "Intermittent errors during payment processing gateway handoff.", examples: ["Payment spun for 5 mins then failed.", "Did my card go through?", "Timeout error 504."] },
+    { id: "t5", name: "iOS App Crash v2.4", volume: 112, impactScore: 85, sentiment: 12, growth: 120, description: "Critical crash reported immediately upon opening the settings tab.", examples: ["App crashes every time I hit settings.", "v2.4 is broken on iPhone 15.", "Unusable after update."] },
+    { id: "t7", name: "Promo Code Failure", volume: 34, impactScore: 40, sentiment: 50, growth: 2, description: "Users unable to apply 'WELCOME20' code on specific SKUs.", examples: ["Code says invalid but I'm new.", "Welcome promo not working.", "Discount didn't apply."] },
+    { id: "t8", name: "Privacy Policy Update Anxiety", volume: 22, impactScore: 30, sentiment: 60, growth: 0, description: "Questions about the new data sharing clause in T&C.", examples: ["Are you selling my data?", "Clarify section 4.2 please.", "Do I need to opt out?"] },
 ];
 
 const MOCK_CAMPAIGNS: Campaign[] = [

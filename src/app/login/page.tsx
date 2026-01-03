@@ -47,14 +47,14 @@ export default function LoginPage() {
 
         // Artificial delay
         setTimeout(() => {
-            const success = login(email);
+            const success = login(email, password);
             if (success) {
                 // If remember me is checked, we could theoretically verify this specific persistence preference,
                 // but demo store persists everything to localStorage by default anyway.
                 // We'll proceed to dashboard.
                 router.push("/");
             } else {
-                setError("Login failed. Please try again.");
+                setError("Invalid credentials. Please check your email and password.");
                 setIsLoading(false);
             }
         }, 800)

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { AppState, Customer, Interaction, Campaign, Agent, Complaint } from "./types";
 import { INITIAL_STATE } from "./data";
+import { DEMO_USERS } from "./auth";
 
 // Action Types
 type DemoAction =
@@ -33,7 +34,7 @@ const DemoContext = React.createContext<{
     state: AppState;
     dispatch: React.Dispatch<DemoAction>;
     resetDemo: () => void;
-    login: (email: string) => boolean;
+    login: (email: string, password?: string) => boolean;
     logout: () => void;
 } | undefined>(undefined);
 
@@ -277,11 +278,23 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
 
     const resetDemo = () => dispatch({ type: 'RESET_DEMO' });
 
-    const login = (email: string) => {
-        // Simple mock login logic: find agent by email or default to first one
-        const agent = state.agents.find(a => a.email === email) || state.agents[0];
-        dispatch({ type: 'LOGIN', payload: { user: agent } });
-        return true;
+
+
+    const login = (email: string, password?: string) => {
+        const validUser = DEMO_USERS.find(u => (u.email === email || (u.email === 'admin' && email === 'admin')) && u.password === password);
+
+        if (validUser) {
+            // Find existing agent or create a mock one properly
+            const agent = state.agents.find(a => a.email === validUser.email) || {
+                id: `mock-${validUser.email}`,
+                name: validUser.name,
+                email: validUser.email,
+                role: validUser.role as any
+            };
+            dispatch({ type: 'LOGIN', payload: { user: agent } });
+            return true;
+        }
+        return false;
     };
 
     const logout = () => dispatch({ type: 'LOGOUT' });
