@@ -53,7 +53,7 @@ export default function TypographyPage() {
                         <p className="type-body max-w-2xl">
                             The quick brown fox jumps over the lazy dog. Customer intelligence requires a proactive approach
                             to solving complaints before they become churn risks. Our AI detects subtle sentiment shifts
-                            in real-time voice data.
+                            in near-real-time pilot dashboard voice data.
                         </p>
                         <p className="text-sm text-muted-foreground font-mono">Inter • Regular • 16px</p>
                     </div>

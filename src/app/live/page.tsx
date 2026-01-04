@@ -590,7 +590,7 @@ export default function LiveCoachingPage() {
                                 </>
                             ) : (
                                 <div className="text-center text-sm text-muted-foreground italic p-4">
-                                    Select an interaction to see real-time coaching.
+                                    Select an interaction to see near-real-time coaching.
                                 </div>
                             )}
                         </div>

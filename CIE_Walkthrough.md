@@ -1,10 +1,10 @@
 # Complaint Intelligence Engine (CIE) - Prototype Walkthrough
 
 ## Overview
-The Complaint Intelligence Engine (CIE) is a comprehensive platform designed to transform customer complaints into actionable business intelligence. It streamlines the entire lifecycle of a complaint from intake and automated risk scoring to real-time agent coaching and strategic trend conversion into marketing campaigns. This prototype demonstrates how businesses can triage issues faster and turn negative feedback into trust-building opportunities.
+The Complaint Intelligence Engine (CIE) is a comprehensive platform designed to transform customer complaints into actionable business intelligence. It streamlines the entire lifecycle of a complaint from intake and risk scoring to near-real-time pilot dashboard coaching and strategic trend conversion into campaign draft generation for human review during pilot evaluation. This prototype demonstrates how businesses can triage issues faster and turn negative feedback into trust-building opportunities.
 
 ## Workflow at a Glance
-1.  **Monitor**: Track real-time risk levels and critical alerts on the Dashboard.
+1.  **Monitor**: Track risk levels and critical alerts on the near-real-time pilot dashboard.
 2.  **Intake & Score**: Input raw complaint text to generate instant AI-driven risk assessments.
 3.  **Manage**: Review, update, and filter the master list of complaints.
 4.  **Coach**: Provide live agents with AI-suggested responses during active customer interactions.
@@ -20,7 +20,7 @@ Start your journey at the **Dashboard**. This is the operational hub for the CIE
 *   **Hero Metrics**: At the top, you'll see key performance indicators like *Active Risk*, *Avg Resolution Time*, and *Customer Sentiment*. These give you an immediate health check of your support operations.
 *   **Risk Overview**: The center stage features three primary cards: *High Risk*, *Medium Risk*, and *Low Risk*. These categorize active complaints based on severity.
 *   **High Risk Alerts**: Pay special attention to the Alerts section. This dynamic feed highlights complaints that require immediate intervention—often those with legal or churn implications.
-*   **Updates**: Notice how the numbers and charts reflect the current state of the "demo" store. As you add new complaints, these metrics will update in real-time.
+*   **Updates**: Notice how the numbers and charts reflect the current state of the "demo" store. As you add new complaints, these metrics will update in the near-real-time pilot dashboard.
 
 ### 2. Complaints Intake: Processing New Issues
 Navigate to **Complaints** > **Intake**. This page simulates the arrival of a new customer issue, whether from email, chat, or voice transcription.
@@ -39,12 +39,12 @@ Head over to **Complaints** (the main list page).
 *   **Columns**: The table displays ID, Customer, Channel, Risk, Sentiment, Summary (a short extract), Date, and Status.
 *   **Mobile Responsiveness**: If you view this on a mobile device, the layout automatically transforms. The wide table vanishes, replaced by a stack of mobile-friendly cards that display the most critical info (Name, Status, and a short summary) without requiring horizontal scrolling.
 
-### 4. Live Coaching: Real-Time Agent Assistance
+### 4. Live Coaching: Near-Real-Time Agent Assistance
 Navigate to **Live Coaching**. This section simulates an agent's workspace during an active interaction.
 *   **Live vs. History**: Toggle between "Live" active sessions and "History" for past interactions.
 *   **The Interface**:
     *   **Queue**: On the left, a list of active customers waiting or currently speaking.
-    *   **Transcript**: In the center, a real-time chat or voice transcript appears. Message bubbles show the flow of conversation.
+    *   **Transcript**: In the center, a near-real-time chat or voice transcript appears. Message bubbles show the flow of conversation.
     *   **AI Coach**: On the right, the "AI Coach" provides context-aware suggestions.
 *   **AI Suggestions**: As the transcript "updates" (in a real scenario), the AI Coach suggests the next best response. You can click **Apply** to use the text or **Escalate** if the issue is too complex.
 *   **Outcome Log**: Below the coach, a log tracks actions taken, ensuring a complete audit trail of the assistance provided.
@@ -59,7 +59,7 @@ Visit the **Trends** page.
 Finally, go to **Campaign Studio** > **Create**. This is where you turn insights into action.
 *   **Select a Trend**: Pick one of the trends identified in the previous step (e.g., a "Service Outage").
 *   **Generate Campaign**: The system uses the trend data to pre-fill a marketing campaign.
-    *   **Headline & Text**: Automatically generated copy (e.g., "We Fixed the Outage - Here's a Discount") addresses the specific pain point. You can edit this text freely.
+    *   **Headline & Text**: Generated copy drafts (e.g., "We Fixed the Outage - Here's a Discount") addresses the specific pain point. You can edit this text freely.
     *   **Call to Action (CTA)**: Define where the user should go (e.g., a support page or coupon link).
 *   **Ad Preview**: Watch the "Mobile 320px" preview card update instantly as you type. This ensures your recovery message looks good on customer devices.
 *   **Platform Connection**: Toggle platforms like Google Ads, Meta, or Shopify. In this prototype, these are simulated toggles.

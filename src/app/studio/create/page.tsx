@@ -162,7 +162,7 @@ export default function StudioPage() {
                 <div className="col-span-1 lg:col-span-4 flex flex-col gap-6 lg:border-r border-border lg:pr-6 order-3 lg:order-1 min-w-0">
                     <div className="flex items-center justify-between">
                         <span className="type-label-mono text-muted-foreground">TREND MINER</span>
-                        <Badge variant="outline" className="text-[10px]">Real-time</Badge>
+                        <Badge variant="outline" className="text-[10px]">Near-real-time</Badge>
                     </div>
 
                     <div className="relative">
@@ -467,7 +467,7 @@ export default function StudioPage() {
 
                             <p className="text-xs text-muted-foreground">
                                 By confirming, this campaign will go live immediately on selected channels.
-                                Dashboard metrics will update in real-time.
+                                Dashboard metrics will update in the near-real-time pilot dashboard.
                             </p>
                         </div>
                         <div className="p-4 bg-muted/50 border-t border-border flex justify-end gap-3">

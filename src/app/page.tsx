@@ -205,7 +205,7 @@ export default function DashboardPage() {
 
                 </div>
                 <p className="text-white/60 text-lg font-light max-w-md">
-                  Real-time intelligence overview
+                  Near-real-time pilot dashboard intelligence overview
                 </p>
               </div>
 
@@ -571,7 +571,7 @@ export default function DashboardPage() {
               <div className="p-6">
                 <h3 className="font-semibold text-lg mb-2">Auto-Approve Low Risk?</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  This will automatically approve and archive all pending actions marked as <strong>Low Risk</strong>. This action cannot be undone.
+                  This will approve and archive all pending actions marked as <strong>Low Risk</strong>. This action cannot be undone.
                 </p>
                 <div className="flex justify-end gap-3">
                   <Button variant="outline" onClick={() => setAutoApproveConfirmOpen(false)}>Cancel</Button>
