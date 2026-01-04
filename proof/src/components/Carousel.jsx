@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Lightbox } from './Lightbox';
 
-export function Carousel({ items }) {
+export function Carousel({ items, infoVisible, setInfoVisible }) {
   const [index, setIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [infoVisible, setInfoVisible] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const thumbRef = useRef(null);
   const imageRef = useRef(null);
@@ -60,11 +59,6 @@ export function Carousel({ items }) {
   }, [index]);
 
   const current = items[index];
-
-  // Reset info visibility when image changes
-  useEffect(() => {
-    setInfoVisible(true);
-  }, [index]);
 
   return (
     <div className="carousel-container">
@@ -129,6 +123,8 @@ export function Carousel({ items }) {
             alt={current.caption}
             info={current.info}
             onClose={closeLightbox}
+            infoVisible={infoVisible}
+            setInfoVisible={setInfoVisible}
           />
         )}
 

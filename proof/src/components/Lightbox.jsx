@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 
-export function Lightbox({ src, alt, info, onClose }) {
-  const [infoVisible, setInfoVisible] = useState(true);
+export function Lightbox({ src, alt, info, onClose, infoVisible, setInfoVisible }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const imageRef = useRef(null);
 

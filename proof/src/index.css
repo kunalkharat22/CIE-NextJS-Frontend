@@ -68,6 +68,61 @@ code {
   justify-content: center;
 }
 
+.intro-section {
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.intro-content {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.intro-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.intro-subtitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.intro-description {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .intro-section {
+    padding: 3rem 2rem;
+  }
+
+  .intro-title {
+    font-size: 2.5rem;
+  }
+
+  .intro-subtitle {
+    font-size: 1.5rem;
+  }
+
+  .intro-description {
+    font-size: 1.1rem;
+  }
+}
+
 .top-section {
   /* Use flex-grow to take up available space, ensuring a balanced vertical layout */
   flex: 1;
@@ -224,6 +279,22 @@ code {
   backdrop-filter: blur(8px);
 }
 
+/* Portrait orientation: move info button to top in fullscreen */
+@media (orientation: portrait) {
+  .screen-frame:fullscreen .info-icon-btn {
+    top: 4rem;
+    bottom: auto;
+    right: 1rem;
+  }
+  
+  .screen-frame:fullscreen .info-message {
+    top: 5.5rem;
+    bottom: auto;
+    right: 1rem;
+    max-width: calc(100% - 2rem);
+  }
+}
+
 .screen-img {
   max-width: 100%;
   max-height: 100%;
@@ -336,7 +407,27 @@ code {
   }
 }
 
-@media (max-width: 640px) {
+/* Portrait orientation: position info message below icon */
+@media (orientation: portrait) and (max-width: 640px) {
+  .card {
+    overflow: visible;
+  }
+
+  .screen-frame {
+    overflow: visible;
+    margin-bottom: 5rem;
+  }
+
+  .info-message {
+    max-width: calc(100% - 1.5rem);
+    right: 0.75rem;
+    left: 0.75rem;
+    bottom: -4.5rem;
+    top: auto;
+  }
+}
+
+@media (max-width: 640px) and (orientation: landscape) {
   .info-message {
     max-width: calc(100% - 1.5rem);
     right: 0.75rem;
@@ -502,6 +593,27 @@ html {
 .lightbox-image-wrapper:fullscreen .lightbox-fullscreen-btn,
 .lightbox-image-wrapper:fullscreen .lightbox-info-icon-btn {
   position: fixed;
+}
+
+.lightbox-image-wrapper:fullscreen .lightbox-info-icon-btn {
+  bottom: 1.5rem;
+  right: 1.5rem;
+}
+
+/* Portrait orientation: move info button to top in lightbox fullscreen */
+@media (orientation: portrait) {
+  .lightbox-image-wrapper:fullscreen .lightbox-info-icon-btn {
+    top: 4rem;
+    bottom: auto;
+    right: 1.5rem;
+  }
+  
+  .lightbox-image-wrapper:fullscreen .lightbox-info-message {
+    top: 5.5rem;
+    bottom: auto;
+    right: 1.5rem;
+    max-width: calc(100% - 3rem);
+  }
 }
 
 .lightbox-img {
@@ -670,7 +782,22 @@ html {
   backdrop-filter: blur(12px);
 }
 
-@media (max-width: 768px) {
+/* Portrait orientation: position info message below icon in lightbox */
+@media (orientation: portrait) and (max-width: 768px) {
+  .lightbox-image-wrapper {
+    overflow: visible;
+  }
+
+  .lightbox-info-message {
+    max-width: calc(100% - 3rem);
+    right: 1.5rem;
+    left: 1.5rem;
+    bottom: -5.5rem;
+    top: auto;
+  }
+}
+
+@media (max-width: 768px) and (orientation: landscape) {
   .lightbox-info-message {
     max-width: calc(100% - 3rem);
     right: 1.5rem;
