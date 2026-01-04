@@ -7,6 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Lock, Mail, ShieldCheck, X } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 // Import Demo Hooks
 import { useDemo } from "@/lib/demo/store"
@@ -86,10 +87,14 @@ export default function LoginPage() {
 
             <div className="w-full max-w-[480px] p-4 relative z-10 animate-in fade-in zoom-in-95 duration-500">
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center gap-2 mb-6">
-                        <div className="h-10 w-10 rounded-xl bg-signature-gradient flex items-center justify-center shadow-accent-lg hover-lift">
-                            <span className="text-white font-display font-bold text-xl">C</span>
+                    <div className="flex flex-col items-center gap-2 mb-6">
+                        <div className="inline-flex items-center gap-3">
+                            <div className="relative h-12 w-12 shrink-0 hover-lift">
+                                <Image src="/logo.png" alt="CIE Logo" fill className="object-contain" priority />
+                            </div>
+                            <span className="font-display font-bold text-2xl tracking-tight">CIE</span>
                         </div>
+                        <p className="text-sm text-muted-foreground uppercase tracking-[0.2em] font-medium">Complaint Intelligence Engine</p>
                     </div>
 
                     <h1 className="type-h2 text-foreground mb-3">

@@ -200,7 +200,7 @@ export default function DashboardPage() {
             <div className="relative z-10 flex flex-col md:flex-row justify-between gap-8 items-end">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <h1 className="type-h1 tracking-tight text-white">Dashboard</h1>
+                  <h1 className="type-h1 tracking-tight text-white">CIE Dashboard</h1>
 
 
                 </div>

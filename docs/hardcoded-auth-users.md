@@ -8,6 +8,6 @@ This document lists the hardcoded user credentials available for the CIE Prototy
 
 | Role | Name | Username/Email | Password |
 | :--- | :--- | :--- | :--- |
-| **Admin** | System Admin | `admin` | `admin123` |
+| **Admin** | System Admin | `admin@cie.ai` | `admin123` |
 | **Founder** | Altamash Khan | `altamash@cie.ai` | `Founder2024!` |
 | **Co-Founder** | Nilopher Khan | `nilopher@cie.ai` | `Cofounder2024!` |

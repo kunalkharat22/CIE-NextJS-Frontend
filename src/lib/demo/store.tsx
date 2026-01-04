@@ -281,7 +281,9 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
 
 
     const login = (email: string, password?: string) => {
-        const validUser = DEMO_USERS.find(u => (u.email === email || (u.email === 'admin' && email === 'admin')) && u.password === password);
+        // Robust check: trim whitespace and case-insensitive email
+        const cleanEmail = email.trim().toLowerCase();
+        const validUser = DEMO_USERS.find(u => u.email.toLowerCase() === cleanEmail && u.password === password);
 
         if (validUser) {
             // Find existing agent or create a mock one properly
