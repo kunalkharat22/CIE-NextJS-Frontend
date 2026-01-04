@@ -42,6 +42,7 @@ interface LiveInteraction {
     transcript?: TranscriptItem[];
     emailThread?: EmailItem[];
     risk?: 'High' | 'Medium' | 'Low';
+    suggestions?: string[];
 }
 
 interface SessionLog {
@@ -64,6 +65,11 @@ const MOCK_DATA: LiveInteraction[] = [
             { role: "agent", text: "Thank you for calling CIE Support, this is Alex. How can I help?", time: "2 mins ago" },
             { role: "customer", text: "I'm extremely frustrated! My account was suspended without warning.", time: "2 mins ago", sentiment: "negative" },
             { role: "ai-insight", text: "Customer is exhibiting high churn risk. Empathy required.", type: "insight", time: "now" }
+        ],
+        suggestions: [
+            "I apologize for the confusion. I can restore your account immediately while we review the flag.",
+            "I understand your frustration. Let me check the suspension reason and see if we can override it.",
+            "I can see this was an automated flag. I'm escalating this to the safety team for priority review."
         ]
     },
     {
@@ -71,6 +77,11 @@ const MOCK_DATA: LiveInteraction[] = [
         transcript: [
             { role: "agent", text: "Hi James, I see you have a question about your invoice?", time: "1 min ago" },
             { role: "customer", text: "Yeah, line 4 seems wrong. Can you explain the service fee?", time: "1 min ago" }
+        ],
+        suggestions: [
+            "That service fee covers the new platform maintenance costs introduced last month.",
+            "I can waive that fee this one time as a courtesy since you weren't notified.",
+            "Let me break down the invoice for you line by line."
         ]
     },
     // Live Chats
@@ -80,6 +91,11 @@ const MOCK_DATA: LiveInteraction[] = [
             { role: "customer", text: "Your API is throwing 500 errors. This is breaking our prod.", time: "8 mins ago", sentiment: "negative" },
             { role: "agent", text: "I'm checking the status page now, Naomi.", time: "7 mins ago" },
             { role: "customer", text: "Hurry up please.", time: "5 mins ago", sentiment: "negative" }
+        ],
+        suggestions: [
+            "I apologize for the delay. We have a known incident and engineering is rolling out a fix now.",
+            "I can see the 500 errors on our dashboard. I've flagged this to the on-call team.",
+            "We are experiencing a temporary degradation. Can I email you once it's resolved?"
         ]
     },
     {
@@ -203,14 +219,33 @@ export default function LiveCoachingPage() {
     // Reset input when selection changes
     React.useEffect(() => {
         setResponseInput("")
+        setSelectedSuggestionIndex(0)
     }, [selectedId])
 
+    const [selectedSuggestionIndex, setSelectedSuggestionIndex] = React.useState(0)
     const activeItem = MOCK_DATA.find(i => i.id === selectedId) || null;
     const currentSession = activeItem ? getSession(activeItem.id) : null;
 
-    const suggestedText = activeItem ? (activeItem.channel === 'Email'
-        ? "I apologize for the delay. I have escalated this breach of SLA to our management team and we will issue a credit."
-        : "I hear your frustration. Let's look at that together right now.") : "";
+    const currentSuggestions = React.useMemo(() => {
+        if (!activeItem) return [];
+        if (activeItem.suggestions && activeItem.suggestions.length > 0) return activeItem.suggestions;
+
+        // Fallbacks
+        if (activeItem.channel === 'Email') {
+            return [
+                "I apologize for the delay. I have escalated this breach of SLA to our management team and we will issue a credit.",
+                "We are currently reviewing the SLA terms and will get back to you within 24 hours.",
+                "Thank you for bringing this to our attention."
+            ]
+        }
+        return [
+            "I hear your frustration. Let's look at that together right now.",
+            "I can certainly help you with that issue.",
+            "Let me check the details on your account."
+        ]
+    }, [activeItem]);
+
+    const selectedText = currentSuggestions[selectedSuggestionIndex] || "";
 
     const handleApplySuggestion = (text: string) => {
         if (!activeItem) return;
@@ -513,9 +548,32 @@ export default function LiveCoachingPage() {
                                         </CardHeader>
                                         <CardContent className="space-y-4">
                                             <div>
-                                                <p className="text-sm font-medium mb-2">Suggested Response:</p>
-                                                <div className="p-3 bg-muted/20 rounded-lg text-sm italic text-muted-foreground border border-border/50">
-                                                    "{suggestedText}"
+                                                <p className="text-sm font-medium mb-3">Suggested Responses:</p>
+                                                <div className="space-y-2">
+                                                    {currentSuggestions.map((suggestion, idx) => (
+                                                        <div
+                                                            key={idx}
+                                                            onClick={() => setSelectedSuggestionIndex(idx)}
+                                                            className={cn(
+                                                                "p-3 rounded-lg text-xs cursor-pointer border transition-all relative",
+                                                                selectedSuggestionIndex === idx
+                                                                    ? "bg-accent/10 border-accent shadow-sm"
+                                                                    : "bg-muted/20 border-border/50 hover:border-accent/30"
+                                                            )}
+                                                        >
+                                                            <div className="flex items-start gap-3">
+                                                                <div className={cn(
+                                                                    "mt-0.5 h-3.5 w-3.5 rounded-full border flex items-center justify-center shrink-0 transition-colors",
+                                                                    selectedSuggestionIndex === idx ? "border-accent bg-accent" : "border-muted-foreground/40"
+                                                                )}>
+                                                                    {selectedSuggestionIndex === idx && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
+                                                                </div>
+                                                                <span className={cn("leading-relaxed", selectedSuggestionIndex === idx ? "text-foreground font-medium" : "text-muted-foreground")}>
+                                                                    "{suggestion}"
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             </div>
 
@@ -523,11 +581,11 @@ export default function LiveCoachingPage() {
                                                 <Button
                                                     size="sm"
                                                     className={cn("h-8 text-xs", currentSession?.isApplied ? "bg-green-600 hover:bg-green-700 text-white" : "bg-accent text-white hover:bg-accent/90")}
-                                                    onClick={() => handleApplySuggestion(suggestedText)}
+                                                    onClick={() => handleApplySuggestion(selectedText)}
                                                     disabled={currentSession?.isApplied}
                                                 >
                                                     <CheckCircle className="h-3 w-3 mr-2" />
-                                                    {currentSession?.isApplied ? "Applied ✓" : "Apply"}
+                                                    {currentSession?.isApplied ? "Applied ✓" : "Apply Selection"}
                                                 </Button>
                                                 <Button
                                                     size="sm"
