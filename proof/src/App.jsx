@@ -12,7 +12,7 @@ function App() {
       <section className="section intro-section">
         <div className="intro-content">
           <h1 className="intro-title">Complaint Intelligence Engine</h1>
-          <p className="intro-subtitle">
+          {/* <p className="intro-subtitle">
             Transform customer complaints into business growth — automatically, in real time.
           </p>
           <p className="intro-description">
@@ -20,7 +20,7 @@ function App() {
             It analyzes sentiment, intent, and churn risk using advanced AI, then automatically converts insights into 
             retention actions and marketing campaigns. Instead of treating complaints as damage control, CIE turns them 
             into a strategic engine for customer loyalty, innovation, and revenue growth.
-          </p>
+          </p> */}
         </div>
       </section>
 
