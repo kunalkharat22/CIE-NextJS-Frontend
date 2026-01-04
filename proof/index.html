@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Proof | Walkthrough</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Calistoga&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+
+    <!-- React & Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        :root {
+            /* Theme Colors - Minimalist Modern */
+            --bg-color: #FAFAFA;
+            --text-color: #0F172A;
+            --text-secondary: #64748B;
+            --primary-start: #0052FF;
+            --primary-end: #4D7CFF;
+            --border-color: #E2E8F0;
+            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Calistoga', serif;
+            font-weight: 400;
+            margin-top: 0;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .container {
+            max-width: 640px;
+            margin: 0 auto;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section {
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .top-section {
+            /* Use flex-grow to take up available space, ensuring a balanced vertical layout */
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .bottom-section {
+            flex: 1;
+            background: #FFFFFF;
+        }
+
+        /* Typography Helpers */
+        .text-center {
+            text-align: center;
+        }
+
+        .text-muted {
+            color: var(--text-secondary);
+        }
+
+        .mb-2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        .mb-6 {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 0.75rem;
+            /* xl */
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            padding: 0.75rem;
+        }
+
+        /* Carousel */
+        .carousel-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .screen-frame {
+            position: relative;
+            width: 100%;
+            /* Default aspect ratio, but let image drive it or contain it */
+            aspect-ratio: 16/10;
+            background: #F1F5F9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .screen-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            user-select: none;
+        }
+
+        .btn:hover {
+            opacity: 0.95;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .counter {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .caption-text {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Thumbnails */
+        .thumbnails {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding: 0.25rem 0.25rem 0.75rem 0.25rem;
+            /* Hide scrollbar but keep functionality */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .thumbnails::-webkit-scrollbar {
+            display: none;
+        }
+
+        .thumb {
+            width: 64px;
+            height: 48px;
+            flex-shrink: 0;
+            border-radius: 0.375rem;
+            overflow: hidden;
+            border: 2px solid transparent;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: all 0.2s;
+            background: #f1f5f9;
+        }
+
+        .thumb.active {
+            border-color: var(--primary-start);
+            opacity: 1;
+            box-shadow: 0 0 0 2px rgba(0, 82, 255, 0.1);
+        }
+
+        .thumb-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Video */
+        .video-wrapper {
+            width: 100%;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            background: black;
+            border: 1px solid var(--border-color);
+        }
+
+        video,
+        iframe {
+            width: 100%;
+            display: block;
+            aspect-ratio: 16/9;
+            border: none;
+        }
+
+        /* Smooth scroll for the page */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Lightbox - Full Screen Image Viewer */
+        .lightbox-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 100%;
+            max-height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox-img {
+            max-width: 100%;
+            max-height: 90vh;
+            /* Leave room for potential UI */
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            /* Spring-like pop */
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: -2rem;
+            /* Position above image, or adjust as needed for mobile */
+            right: 0;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            line-height: 1;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            z-index: 10000;
+        }
+
+        /* Mobile: Put close button at top right of viewport so it's always accessible */
+        @media (max-width: 768px) {
+            .lightbox-close {
+                top: 1rem;
+                right: 1rem;
+                position: fixed;
+                background: rgba(0, 0, 0, 0.5);
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        .lightbox-close:hover {
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // ==========================================
+        // CONFIGURATION SECTION
+        // ==========================================
+
+        const SCREENSHOTS = [
+            // { src: "assets/screens/01-login.png", caption: "Login Page" },
+            // Replace these with your actual files
+            { src: "assets/screens/01-login.png", caption: "Login Page" },
+            { src: "assets/screens/02-Dashboard.png", caption: "Dashboard" },
+            { src: "assets/screens/03-Complaint-Input-Screen-And-Analysis.png", caption: "Complaint Input Screen And Analysis" },
+            { src: "assets/screens/04-Clustered-View.png", caption: "Clustered View" },
+            { src: "assets/screens/05-Recommendation.png", caption: "Recommendation" },
+            { src: "assets/screens/06-Settings.png", caption: "Settings" }
+        ];
+
+        // Leave empty "" to use local reference: proof/assets/demo.mp4
+        // Or paste a URL: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+        const VIDEO_EMBED_URL = "";
+
+        // ==========================================
+        // APP LOGIC
+        // ==========================================
+
+        const { useState, useEffect, useRef } = React;
+
+        function App() {
+            return (
+                <div className="container">
+                    {/* Top Section: Carousel */}
+                    <section className="section top-section">
+                        <header className="text-center mb-6">
+                            <h1>Client Proof</h1>
+                            <p className="text-muted">Walkthrough & Feature Demonstration</p>
+                        </header>
+
+                        <Carousel items={SCREENSHOTS} />
+                    </section>
+
+                    {/* Bottom Section: Video */}
+                    <section className="section bottom-section">
+                        <header className="mb-4">
+                            <h2>Video Demo</h2>
+                            <p className="text-muted" style={{ fontSize: '0.95rem' }}>
+                                Watch the complete user journey in action.
+                            </p>
+                        </header>
+
+                        <VideoPlayer />
+                    </section>
+                </div>
+            );
+        }
+
+        function Lightbox({ src, alt, onClose }) {
+            // Close on Escape key
+            useEffect(() => {
+                const handleEsc = (e) => {
+                    if (e.key === 'Escape') onClose();
+                };
+                window.addEventListener('keydown', handleEsc);
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                return () => {
+                    window.removeEventListener('keydown', handleEsc);
+                    document.body.style.overflow = '';
+                };
+            }, [onClose]);
+
+            // Close on click outside (overlay click)
+            const handleOverlayClick = (e) => {
+                if (e.target === e.currentTarget) {
+                    onClose();
+                }
+            };
+
+            return (
+                <div className="lightbox-overlay" onClick={handleOverlayClick}>
+                    <div className="lightbox-content">
+                        <button className="lightbox-close" onClick={onClose} aria-label="Close">
+                            &times;
+                        </button>
+                        <img src={src} alt={alt} className="lightbox-img" />
+                    </div>
+                </div>
+            );
+        }
+
+        function Carousel({ items }) {
+            const [index, setIndex] = useState(0);
+            const [lightboxOpen, setLightboxOpen] = useState(false);
+            const thumbRef = useRef(null);
+
+            const openLightbox = () => setLightboxOpen(true);
+            const closeLightbox = () => setLightboxOpen(false);
+
+            const next = () => setIndex(i => (i + 1) % items.length);
+            const prev = () => setIndex(i => (i - 1 + items.length) % items.length);
+
+            // Keyboard navigation
+            useEffect(() => {
+                const handleKey = (e) => {
+                    if (e.key === 'ArrowRight') next();
+                    if (e.key === 'ArrowLeft') prev();
+                };
+                window.addEventListener('keydown', handleKey);
+                return () => window.removeEventListener('keydown', handleKey);
+            }, [items.length]);
+
+            // Scroll active thumbnail into view
+            useEffect(() => {
+                const el = document.querySelector(`.thumb[data-index="${index}"]`);
+                if (el && el.scrollIntoView) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            }, [index]);
+
+            const current = items[index];
+
+            return (
+                <div className="carousel-container">
+                    <div className="card">
+                        <div
+                            className="screen-frame mb-2"
+                            onClick={openLightbox}
+                            style={{ cursor: 'zoom-in' }}
+                            title="Click to expand"
+                        >
+                            <img src={current.src} alt={current.caption} className="screen-img" />
+                        </div>
+
+                        <div className="text-center mb-2">
+                            <div className="caption-text">{current.caption}</div>
+                        </div>
+
+                        {lightboxOpen && (
+                            <Lightbox
+                                src={current.src}
+                                alt={current.caption}
+                                onClose={closeLightbox}
+                            />
+                        )}
+
+                        {/* Controls Row */}
+                        <div className="controls">
+                            <button className="btn" onClick={prev} aria-label="Previous">
+                                &larr;
+                            </button>
+                            <span className="counter">
+                                {index + 1} / {items.length}
+                            </span>
+                            <button className="btn" onClick={next} aria-label="Next">
+                                &rarr;
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Thumbnails Strip */}
+                    {items.length > 1 && (
+                        <div className="thumbnails" ref={thumbRef}>
+                            {items.map((item, i) => (
+                                <div
+                                    key={i}
+                                    data-index={i}
+                                    className={`thumb ${i === index ? 'active' : ''}`}
+                                    onClick={() => setIndex(i)}
+                                    title={item.caption}
+                                >
+                                    <img src={item.src} className="thumb-img" alt="" />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        function VideoPlayer() {
+            if (VIDEO_EMBED_URL && VIDEO_EMBED_URL.trim() !== "") {
+                return (
+                    <div className="video-wrapper">
+                        <iframe
+                            src={VIDEO_EMBED_URL}
+                            title="Video Demo"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                        />
+                    </div>
+                );
+            }
+
+            // Fallback to local video
+            return (
+                <div className="video-wrapper">
+                    <video controls playsInline poster="">
+                        <source src="assets/demo.mp4" type="video/mp4" />
+                        <div style={{ color: 'white', padding: '2rem', textAlign: 'center' }}>
+                            <p>Video not found.</p>
+                            <p className="text-muted" style={{ fontSize: '0.8rem' }}>
+                                Place <code>demo.mp4</code> in <code>proof/assets/</code> <br />
+                                or set <code>VIDEO_EMBED_URL</code> in index.html.
+                            </p>
+                        </div>
+                    </video>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
